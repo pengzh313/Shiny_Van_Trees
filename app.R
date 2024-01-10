@@ -22,7 +22,7 @@ ui <- fluidPage(
   
   tabsetPanel(
     tabPanel("Search by Genus",
-      # Sidebar with a slider input for number of bins 
+      # Sidebar with a selection input for genus 
       sidebarLayout(
         sidebarPanel(
           selectizeInput(inputId = "genus",
@@ -32,17 +32,35 @@ ui <- fluidPage(
           
           br(),
           
-          p("The map shows the number of selected trees in each neighbourhood in the City of Vancouver")
+          p("The map shows the number of trees with selected genus in each neighbourhood in the City of Vancouver")
         ),
                
         # Show a map of the distribution of the selected genus 
         mainPanel(
-          leafletOutput("treemap")
+          leafletOutput("treemap_genus")
         )
      )
     ),
     
-    tabPanel("Search by Hight",
+    tabPanel("Search by Height",
+      # Sidebar with a selection input for genus 
+      sidebarLayout(
+        sidebarPanel(
+          selectizeInput(inputId = "height",
+                         label = "Select the height range",
+                         choices = NULL
+          ),
+                 
+          br(),
+                 
+          p("The map shows the number of trees with selected height range in each neighbourhood in the City of Vancouver")
+        ),
+               
+        # Show a map of the distribution of the selected genus 
+        mainPanel(
+          leafletOutput("treemap_height")
+        )
+     )             
     )
   ),
   
@@ -62,6 +80,7 @@ count_trees <- function(df, map) {
 
 # define server
 server <- function(input, output, session) {
+  ## below code for genus tab
   updateSelectizeInput(session, 
                        "genus", 
                        choices = c("ALL", df$genus_name),
@@ -84,7 +103,7 @@ server <- function(input, output, session) {
   ) |> lapply(htmltools::HTML))
   
   # below code modified from https://rstudio.github.io/leaflet/choropleths.html
-  output$treemap <- renderLeaflet(
+  output$treemap_genus <- renderLeaflet(
     leaflet(map_data()) |>
       addTiles() |>
       addPolygons(
@@ -106,6 +125,57 @@ server <- function(input, output, session) {
           textsize = "15px",
           direction = "auto")) |>
       addLegend(pal = colorBin("YlOrRd", domain = map_data()$n), 
+                values = ~n, 
+                opacity = 0.7, 
+                title = "Number of trees", 
+                position = "bottomright")
+  )
+
+  ## below code for height tab
+  updateSelectizeInput(session, 
+                       "height", 
+                       choices = c("ALL", df$height_range),
+                       selected = "ALL",
+                       server = TRUE)
+  
+  df_selected_h <- reactive(
+    if (input$height != "ALL") {
+      filter(df, height_range == input$height)
+    } else {
+      df
+    }
+  )
+  
+  map_data_h <- reactive(count_trees(df_selected_h(), van_map))
+  
+  labels_h <- reactive(sprintf(
+    "<strong>%s</strong><br/>%g trees</sup>",
+    map_data_h()$name, map_data_h()$n
+  ) |> lapply(htmltools::HTML))
+  
+  # below code modified from https://rstudio.github.io/leaflet/choropleths.html
+  output$treemap_height <- renderLeaflet(
+    leaflet(map_data_h()) |>
+      addTiles() |>
+      addPolygons(
+        fillColor = ~colorBin("YlOrRd", domain = map_data_h()$n)(n),
+        weight = 2,
+        opacity = 1,
+        color = "blue",
+        dashArray = "3",
+        fillOpacity = 0.7,
+        highlightOptions = highlightOptions(
+          weight = 3,
+          color = "#666",
+          dashArray = "",
+          fillOpacity = 0.7,
+          bringToFront = TRUE),
+        label = labels_h(),
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "15px",
+          direction = "auto")) |>
+      addLegend(pal = colorBin("YlOrRd", domain = map_data_h()$n), 
                 values = ~n, 
                 opacity = 0.7, 
                 title = "Number of trees", 
