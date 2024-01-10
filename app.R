@@ -47,7 +47,7 @@ ui <- fluidPage(
       sidebarLayout(
         sidebarPanel(
           selectizeInput(inputId = "height",
-                         label = "Select the height range",
+                         label = "Select the height range in ft",
                          choices = NULL
           ),
                  
@@ -61,6 +61,29 @@ ui <- fluidPage(
           leafletOutput("treemap_height")
         )
      )             
+    ),
+    
+    tabPanel("Search by Diameter",
+      # Sidebar with a selection input for genus 
+      sidebarLayout(
+        sidebarPanel(
+          sliderInput(inputId = "diameter",
+                      label = "Select the diameter range in inches",
+                      value = c(0, 305),
+                      min = 0,
+                      max = 305
+          ),
+                 
+          br(),
+                 
+          p("The map shows the number of trees with selected diameter range in each neighbourhood in the City of Vancouver")
+        ),
+               
+      # Show a map of the distribution of the selected diameter 
+        mainPanel(
+          leafletOutput("treemap_diameter")
+        )
+     )
     )
   ),
   
@@ -176,6 +199,54 @@ server <- function(input, output, session) {
           textsize = "15px",
           direction = "auto")) |>
       addLegend(pal = colorBin("YlOrRd", domain = map_data_h()$n), 
+                values = ~n, 
+                opacity = 0.7, 
+                title = "Number of trees", 
+                position = "bottomright")
+  )
+  
+  ## below code for diameter tab
+#  updateSelectizeInput(session, 
+#                       "height", 
+#                       choices = c("ALL", df$height_range),
+#                       selected = "ALL",
+#                       server = TRUE)
+  
+  df_selected_d <- reactive(
+    filter(df, between(diameter, input$diameter[1], input$diameter[2])
+    )
+  )
+  
+  map_data_d <- reactive(count_trees(df_selected_d(), van_map))
+  
+  labels_d <- reactive(sprintf(
+    "<strong>%s</strong><br/>%g trees</sup>",
+    map_data_d()$name, map_data_d()$n
+  ) |> lapply(htmltools::HTML))
+  
+  # below code modified from https://rstudio.github.io/leaflet/choropleths.html
+  output$treemap_diameter <- renderLeaflet(
+    leaflet(map_data_d()) |>
+      addTiles() |>
+      addPolygons(
+        fillColor = ~colorBin("YlOrRd", domain = map_data_d()$n)(n),
+        weight = 2,
+        opacity = 1,
+        color = "blue",
+        dashArray = "3",
+        fillOpacity = 0.7,
+        highlightOptions = highlightOptions(
+          weight = 3,
+          color = "#666",
+          dashArray = "",
+          fillOpacity = 0.7,
+          bringToFront = TRUE),
+        label = labels_d(),
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "15px",
+          direction = "auto")) |>
+      addLegend(pal = colorBin("YlOrRd", domain = map_data_d()$n), 
                 values = ~n, 
                 opacity = 0.7, 
                 title = "Number of trees", 
