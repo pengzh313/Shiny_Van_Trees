@@ -6,7 +6,7 @@ library(tidyverse)
 library(geojsonio)
 library(leaflet)
 
-# read dataset and map
+# read dataset and map file
 df <- read_delim("data/street_trees_cleaned.csv")
 url_geojson = "https://raw.githubusercontent.com/UBC-MDS/exploratory-data-viz/main/data/local-area-boundary.geojson"
 van_map <- geojsonio::geojson_read(url_geojson, what = "sp")
@@ -46,12 +46,18 @@ count_trees <- function(df, map) {
 server <- function(input, output, session) {
   updateSelectizeInput(session, 
                        "genus", 
-                       choices = df$genus_name,
+                       choices = c("ALL", df$genus_name),
+                       selected = "ALL",
                        server = TRUE)
   
   df_selected <- reactive(
-    filter(df, genus_name == input$genus))
-  
+    if (input$genus != "ALL") {
+      filter(df, genus_name == input$genus)
+    } else {
+      df
+    }
+  )
+
   map_data <- reactive(count_trees(df_selected(), van_map))
   
   output$treemap <- renderLeaflet(
