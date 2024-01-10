@@ -1,6 +1,6 @@
-# Vancouver Street Trees 
+# Vancouver Street Trees
 
-[Hosted on shinyapps.io]()
+[Hosted on shinyapps.io](https://pengzh313.shinyapps.io/Shiny_Van_Trees/)
 
 ***A Vancouver street trees visualization dashboard application.***
 
