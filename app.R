@@ -28,7 +28,11 @@ ui <- fluidPage(
           selectizeInput(inputId = "genus",
                          label = "Select the genus",
                          choices = NULL
-          )
+          ),
+          
+          br(),
+          
+          p("The map shows the number of selected trees in each neighbourhood in the City of Vancouver")
         ),
                
         # Show a map of the distribution of the selected genus 
