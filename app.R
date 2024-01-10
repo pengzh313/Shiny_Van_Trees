@@ -78,6 +78,7 @@ server <- function(input, output, session) {
 
   map_data <- reactive(count_trees(df_selected(), van_map))
   
+  # below code modified from https://rstudio.github.io/leaflet/choropleths.html
   output$treemap <- renderLeaflet(
     leaflet(map_data()) |>
       addTiles() |>
@@ -87,7 +88,13 @@ server <- function(input, output, session) {
         opacity = 1,
         color = "blue",
         dashArray = "3",
-        fillOpacity = 0.7) |>
+        fillOpacity = 0.7,
+        highlightOptions = highlightOptions(
+          weight = 3,
+          color = "#666",
+          dashArray = "",
+          fillOpacity = 0.7,
+          bringToFront = TRUE)) |>
       addLegend(pal = colorBin("YlOrRd", domain = map_data()$n), 
                 values = ~n, 
                 opacity = 0.7, 
