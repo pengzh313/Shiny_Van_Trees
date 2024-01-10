@@ -15,23 +15,48 @@ van_map <- geojsonio::geojson_read(url_geojson, what = "sp")
 ui <- fluidPage(
   theme = bslib::bs_theme(version = 4, bootswatch = "minty"),
   # Application title
-  titlePanel("Vancouver Street Trees"),
+  titlePanel(
+    h1("Vancouver Street Trees", align = "center")
+  ),
   
-  # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-      selectizeInput(inputId = "genus",
-                     label = "Select the genus",
-                     choices = NULL
-      )
+  tabsetPanel(
+    tabPanel("Seach by Genus",
+      # Sidebar with a slider input for number of bins 
+      sidebarLayout(
+        sidebarPanel(
+          selectizeInput(inputId = "genus",
+                         label = "Select the genus",
+                         choices = NULL
+          )
+        ),
+               
+        # Show a map of the distribution of the selected genus 
+        mainPanel(
+          leafletOutput("treemap")
+        )
+     )
     ),
     
-    # Show a map of the distribution of the selected genus 
-    mainPanel(
-      leafletOutput("treemap")
+    tabPanel("Seach by Hight",
     )
   )
 )
+  
+#  # Sidebar with a slider input for number of bins 
+#  sidebarLayout(
+#    sidebarPanel(
+#      selectizeInput(inputId = "genus",
+#                     label = "Select the genus",
+#                     choices = NULL
+#      )
+#    ),
+    
+#    # Show a map of the distribution of the selected genus 
+#    mainPanel(
+#      leafletOutput("treemap")
+#    )
+#  )
+#)
 
 # define a function to compute number of trees in neighborhoods
 count_trees <- function(df, map) {
