@@ -7,6 +7,7 @@ library(geojsonio)
 library(leaflet)
 
 # read dataset and map file
+# The GeoJSON map file provided by UBC MDS (Master of Data Science) program
 df <- read_delim("data/street_trees_cleaned.csv")
 url_geojson = "https://raw.githubusercontent.com/UBC-MDS/exploratory-data-viz/main/data/local-area-boundary.geojson"
 van_map <- geojsonio::geojson_read(url_geojson, what = "sp")
