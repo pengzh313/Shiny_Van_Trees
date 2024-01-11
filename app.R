@@ -44,7 +44,7 @@ ui <- fluidPage(
     ),
     
     tabPanel("Search by Height",
-      # Sidebar with a selection input for genus 
+      # Sidebar with a selection input for height range 
       sidebarLayout(
         sidebarPanel(
           selectizeInput(inputId = "height",
@@ -57,7 +57,7 @@ ui <- fluidPage(
           p("The map shows the number of trees with selected height range in each neighbourhood in the City of Vancouver")
         ),
                
-        # Show a map of the distribution of the selected genus 
+        # Show a map of the distribution of the selected height range 
         mainPanel(
           leafletOutput("treemap_height")
         )
@@ -65,7 +65,7 @@ ui <- fluidPage(
     ),
     
     tabPanel("Search by Diameter",
-      # Sidebar with a selection input for genus 
+      # Sidebar with a selection input for diameter range 
       sidebarLayout(
         sidebarPanel(
           sliderInput(inputId = "diameter",
@@ -80,7 +80,7 @@ ui <- fluidPage(
           p("The map shows the number of trees with selected diameter range in each neighbourhood in the City of Vancouver")
         ),
                
-      # Show a map of the distribution of the selected diameter 
+      # Show a map of the distribution of the selected diameter range 
         mainPanel(
           leafletOutput("treemap_diameter")
         )
@@ -219,11 +219,6 @@ server <- function(input, output, session) {
   )
   
   ## below code for diameter tab
-#  updateSelectizeInput(session, 
-#                       "height", 
-#                       choices = c("ALL", df$height_range),
-#                       selected = "ALL",
-#                       server = TRUE)
   
   df_selected_d <- reactive(
     filter(df, between(diameter, input$diameter[1], input$diameter[2])
