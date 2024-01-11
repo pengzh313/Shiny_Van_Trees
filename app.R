@@ -93,6 +93,18 @@ ui <- fluidPage(
 )
 
 # define a function to compute number of trees in neighborhoods
+#' Modify GeoJSON file to add a new variable of the number of trees computed from a dataframe
+#' with matched column of neighbourhood_name
+#'
+#' @param df data.frame
+#' @param map SpatialPolygonsDataFrame
+#' 
+#' @return SpatialPolygonsDataFrame
+#' 
+#' @export
+#' 
+#' @examples
+#' count_trees(df, van_map)
 count_trees <- function(df, map) {
   df_count <- count(df, neighbourhood_name)
   map@data <- left_join(map@data, 
